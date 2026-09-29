@@ -1,19 +1,38 @@
+import { useEffect, useState } from 'react'
 import './App.css'
 import PokemonCard from './components/pokemoncard'
+import type { PokemonSummary } from './types/pokemonsummary'
 
 function App() {
-  const testPokemon = {
-    id: 258,
-    name: "mudkip",
-    sprite: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/258.png",
-    types: ["water"]
-  }
+  const [pokemon, setPokemon] = useState<PokemonSummary | null>(null)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    fetch('http://127.0.0.1:8000/pokemon/charmander')
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Failed to load Pokémon')
+        }
+
+        return response.json()
+      })
+      .then((data: PokemonSummary) => {
+        setPokemon(data)
+      })
+      .catch(() => {
+        setError('Could not load Charmander')
+      })
+  }, [])
 
   return (
     <main>
       <h1>Pokémon Team Planner</h1>
-{/* This is used to render the pokemon card component and give it a prop named Pokemon */}
-      <PokemonCard pokemon={testPokemon} /> 
+
+      {error && <p>{error}</p>}
+
+      {!pokemon && !error && <p>Loading Charmander...</p>}
+
+      {pokemon && <PokemonCard pokemon={pokemon} />}
     </main>
   )
 }
